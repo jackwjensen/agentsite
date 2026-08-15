@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" role="img" aria-label="Nordlys Kaffe">
+  <rect x="2" y="6" width="36" height="36" rx="8" fill="#1d5c8f"/>
+  <path d="M8 30 Q14 16 20 23 T32 15" fill="none" stroke="#8fd0ff" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M8 35 Q14 24 20 28 T32 21" fill="none" stroke="#dcebf7" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+  <text x="48" y="31" font-family="system-ui, sans-serif" font-size="19" font-weight="700" fill="#1f2937">Nordlys Kaffe</text>
+</svg>
