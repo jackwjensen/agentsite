@@ -1,0 +1,45 @@
+/* Archive slice: hero band + category filter chips + grid spacing. */
+
+.archive-hero {
+  background: var(--brand-faint);
+  border-bottom: 1px solid var(--line);
+}
+.archive-hero-inner {
+  max-width: var(--wide-width);
+  margin: 0 auto;
+  padding: 3rem 1.25rem 2.5rem;
+}
+.archive-hero h1 { margin: 0 0 .4rem; }
+.archive-hero p { margin: 0; color: var(--ink-soft); }
+
+.archive-body { padding: 2rem 0 1rem; }
+.archive-inner {
+  max-width: var(--wide-width);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.archive-filters {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.filter-chip {
+  display: inline-block;
+  padding: .35rem .9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--ink-soft);
+  font-size: .9rem;
+  font-weight: 500;
+}
+.filter-chip:hover { border-color: var(--brand); color: var(--brand); }
+.filter-chip.is-active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.archive-empty { color: var(--ink-faint); }

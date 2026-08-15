@@ -1,0 +1,39 @@
+/* Design tokens — the palette's single source of truth.
+ *
+ * The setup interview derives this whole ramp from your one brand colour and
+ * rewrites this file. Templates and the other CSS files only ever reference
+ * var(--…), so re-theming the site touches this file and nothing else.
+ *
+ * Demo palette: a cool Nordic blue for the fictional Nordlys Kaffe. */
+:root {
+  /* Brand ramp */
+  --brand:          #1d5c8f;   /* primary — links, CTAs */
+  --brand-dark:     #164a74;   /* hover / active */
+  --brand-deep:     #0d3050;   /* deep accents */
+  --brand-tint:     #dcebf7;   /* light fills, chips */
+  --brand-faint:    #f2f8fd;   /* section washes */
+
+  /* Neutrals */
+  --ink:            #1f2937;   /* body text */
+  --ink-soft:       #4b5563;   /* secondary text */
+  --ink-faint:      #9ca3af;   /* meta text */
+  --paper:          #ffffff;   /* page background */
+  --paper-soft:     #f8fafc;   /* alternate background */
+  --line:           #e5e7eb;   /* borders */
+
+  /* Feedback */
+  --ok:             #15803d;
+  --ok-tint:        #dcfce7;
+  --warn:           #b45309;
+  --warn-tint:      #fef3c7;
+  --error:          #b91c1c;
+  --error-tint:     #fee2e2;
+
+  /* Type + shape */
+  --font-body:      system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --radius:         10px;
+  --radius-sm:      6px;
+  --shadow:         0 1px 3px rgba(15, 23, 42, .08), 0 4px 14px rgba(15, 23, 42, .06);
+  --content-width:  760px;
+  --wide-width:     1100px;
+}
