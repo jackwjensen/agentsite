@@ -1,0 +1,17 @@
+# Production overlay — changes only what production changes. Activate it by
+# setting COMPOSE_FILE=docker-compose.yml:docker-compose.production.yml in the
+# server's .env (separator is `:` on Linux, `;` on Windows), so a plain
+# `docker compose up -d` on the server picks up both files.
+#
+# The assumption (see docs/DEPLOY.md): a TLS-terminating reverse proxy
+# (Caddy, Traefik, nginx…) runs on the same host and forwards to this
+# container. The site itself always speaks plain HTTP on port 80.
+services:
+  web:
+    # Publish only on loopback — the reverse proxy is the public face.
+    # If your proxy runs in Docker on a shared network instead, replace the
+    # ports override with a `networks:` entry for that network and publish
+    # nothing at all.
+    ports: !override
+      - "127.0.0.1:8080:80"
+    restart: always

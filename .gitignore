@@ -1,0 +1,23 @@
+# Environment — never commit secrets. .env.example is the documented template.
+.env
+.env.*
+!.env.example
+
+# Runtime logs (mail fallback, rate limiting, admin audit) — created by the
+# container at runtime, bind-mounted, never versioned.
+_logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node — this framework has no build step; if a fork adds tooling anyway,
+# keep its dependency tree out of git.
+node_modules/

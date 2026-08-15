@@ -1,0 +1,32 @@
+# Development stack — complete on its own. Production overrides live in
+# docker-compose.production.yml (see docs/DEPLOY.md).
+services:
+  web:
+    build: .
+    # A literal name so `docker logs agentsite-web` works the same on every
+    # machine. If you rename your site, rename this too (and the references
+    # in dev.bat / dev.sh).
+    container_name: agentsite-web
+    ports:
+      - "8080:80"
+    volumes:
+      # The whole site is bind-mounted: edit a file, refresh the browser.
+      # There is no build step — these directories ARE the site.
+      - ./public:/var/www/html/public
+      - ./templates:/var/www/html/templates
+      - ./content:/var/www/html/content
+      - ./i18n:/var/www/html/i18n
+      - ./lib:/var/www/html/lib
+      - ./config:/var/www/html/config
+      - ./scripts:/var/www/html/scripts
+      - ./_logs:/var/www/html/_logs
+    environment:
+      APP_DEBUG: "${APP_DEBUG:-}"
+    restart: unless-stopped
+    # Cap Docker's capture of nginx access/error logs to ~30 MB total so a
+    # long-running host can't silently fill its disk with access logs.
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

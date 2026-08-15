@@ -1,0 +1,4 @@
+# Shell scripts and Dockerfiles must be LF-only — CRLF breaks the shebang
+# inside Linux containers and breaks docker build.
+*.sh        text eol=lf
+Dockerfile  text eol=lf
