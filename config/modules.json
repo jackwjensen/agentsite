@@ -1,16 +1,1 @@
-{
-    "contact-form": {
-        "version": "1",
-        "files": [
-            "config/routes.d/contact-form.php",
-            "docker-compose.override.yml",
-            "i18n/modules/contact-form.da.php",
-            "i18n/modules/contact-form.en.php",
-            "lib/mailer.php",
-            "lib/spam.php",
-            "public/assets/css/contact.css",
-            "scripts/prune-mail-logs.php",
-            "templates/contact.php"
-        ]
-    }
-}
+[]
