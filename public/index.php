@@ -127,12 +127,17 @@ if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'text/markdown')) {
     }
 }
 
-// CSS code-splitting: every page loads tokens + base; each template adds at
-// most one slice, so a page never downloads another page type's CSS.
-$css_map   = ['home' => 'home', 'archive' => 'archive', 'post' => 'content', 'page' => 'content'];
-$css_files = ['tokens', 'base'];
-if (isset($css_map[$match['template']])) {
-    $css_files[] = $css_map[$match['template']];
+// CSS code-splitting: every page loads tokens + base, then at most one slice
+// named after the template, so a page never downloads another page type's
+// CSS. The slice is discovered by filename rather than declared in a map, so
+// a module that ships templates/<name>.php + assets/css/<name>.css gets its
+// styles loaded on its own pages and nowhere else — no core file to edit.
+// $css_shared lets several templates deliberately share one slice.
+$css_shared = ['post' => 'content', 'page' => 'content'];
+$css_slice  = $css_shared[$match['template']] ?? $match['template'];
+$css_files  = ['tokens', 'base'];
+if (is_file(ROOT . "/public/assets/css/$css_slice.css")) {
+    $css_files[] = $css_slice;
 }
 
 $params           = $match['params'];

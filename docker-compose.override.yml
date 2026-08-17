@@ -1,0 +1,43 @@
+# Installed from modules/contact-form (v1).
+#
+# Development mail catcher. Docker Compose loads this file automatically, so
+# in development every message the site sends lands in MailHog's inbox at
+# http://localhost:1080 instead of a real mailbox.
+#
+# **SMTP_HOST is hardcoded here, not interpolated from .env, and that is the
+# safety property — do not "tidy" it into ${SMTP_HOST}.** Your .env
+# legitimately holds real SMTP credentials (you need them to debug production
+# mail). If this file read them, a single local test would deliver a real
+# email to a real person. Interpolation puts the safety in the .env file's
+# CONTENT, where nothing enforces it; hardcoding puts it in the file that
+# development always loads.
+#
+# Production opts IN to real SMTP explicitly, by adding the SMTP_* variables
+# to docker-compose.production.yml — see MODULE.md. With no catcher running,
+# a send fails visibly (error banner + log file), which is the correct way
+# for development to fail.
+services:
+  web:
+    environment:
+      # Hardcoded — see the note above. This is the safety property.
+      SMTP_HOST: "mailhog"
+      SMTP_PORT: "1025"
+      SMTP_USER: ""
+      SMTP_PASS: ""
+      # These are safe to read from .env: they decide what the message SAYS,
+      # not where it goes. The destination is pinned by SMTP_HOST above.
+      MAIL_TO:           "${MAIL_TO:-}"
+      MAIL_FROM:         "${MAIL_FROM:-}"
+      MAIL_FROM_NAME:    "${MAIL_FROM_NAME:-}"
+      FORM_TOKEN_SECRET: "${FORM_TOKEN_SECRET:-}"
+    depends_on:
+      - mailhog
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: agentsite-mailhog
+    ports:
+      - "1080:8025"   # inbox (browse here)
+      - "1025:1025"   # SMTP (the site delivers here)
+    logging:
+      driver: "none"  # MailHog is chatty and says nothing useful

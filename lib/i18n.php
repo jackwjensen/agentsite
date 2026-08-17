@@ -32,3 +32,16 @@ function t(string $key): string
     global $_i18n;
     return (string) ($_i18n[$key] ?? $key);
 }
+
+/**
+ * A translated string that may legitimately not exist, returning '' when it
+ * does not. This is how a core template offers an optional slot a module can
+ * fill: the core 404 page renders an extra hint only when some installed
+ * module has defined it. No hooks, no registry — the string's presence IS
+ * the signal.
+ */
+function t_opt(string $key): string
+{
+    global $_i18n;
+    return isset($_i18n[$key]) ? (string) $_i18n[$key] : '';
+}
