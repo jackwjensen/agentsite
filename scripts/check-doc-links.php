@@ -34,7 +34,25 @@ foreach ($markdown_files as $file) {
     if ($source === false) {
         continue;
     }
-    if (!preg_match_all('/\[([^\]]*)\]\(([^)\s]+)\)/', $source, $matches, PREG_SET_ORDER)) {
+    // Prose that DOCUMENTS link syntax inside a code span is prose, not a
+    // link — `[label](path)` in a guide about writing documentation must not
+    // be chased. But a link whose LABEL happens to be code,
+    // [`file.md`](file.md), is a real link and is still checked. So code
+    // spans are blanked before matching, and a link left with an empty label
+    // by that blanking is restored.
+    $searchable = preg_replace_callback(
+        '/(?<!`)`[^`\n]+`(?!`)/',
+        static fn(array $m): string => str_repeat(' ', strlen($m[0])),
+        $source
+    ) ?? $source;
+    // …then put back any code span that was only the label of a link.
+    $searchable = preg_replace_callback(
+        '/\[\s+\]\(/',
+        static fn(array $m): string => '[x](',
+        $searchable
+    ) ?? $searchable;
+
+    if (!preg_match_all('/\[([^\]]*)\]\(([^)\s]+)\)/', $searchable, $matches, PREG_SET_ORDER)) {
         continue;
     }
     foreach ($matches as $match) {

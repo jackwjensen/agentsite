@@ -202,7 +202,7 @@ function cmd_install(string $target, bool $assume_yes): int
         }
     }
 
-    append_env_vars($env_vars);
+    append_env_vars($env_vars, $name);
     record_install($name, $version, $files);
 
     echo "\n$name installed.\n";
@@ -377,8 +377,17 @@ function write_install_record(array $installed): void
  * Append any missing variables to .env (creating it from .env.example first
  * if needed). Existing values are never touched — a reinstall must not reset
  * a password you already set.
+ *
+ * Each variable is written with its description as a comment above it. A
+ * configuration file that explains itself is the end state worth having:
+ * the person who has to set `SMTP_USER` six months from now is reading
+ * .env, not the module's documentation.
+ *
+ * A manifest may write either form:
+ *   "KEY": "default"
+ *   "KEY": { "default": "…", "description": "what it does" }
  */
-function append_env_vars(array $env_vars): void
+function append_env_vars(array $env_vars, string $module_name): void
 {
     if ($env_vars === []) {
         return;
@@ -386,18 +395,30 @@ function append_env_vars(array $env_vars): void
     $env_file = ROOT . '/.env';
     if (!is_file($env_file)) {
         $example = ROOT . '/.env.example';
-        copy(is_file($example) ? $example : '/dev/null', $env_file);
+        if (is_file($example)) {
+            copy($example, $env_file);
+        } else {
+            file_put_contents($env_file, "# Site configuration.\n");
+        }
     }
     $current = (string) file_get_contents($env_file);
     $append  = '';
-    foreach ($env_vars as $key => $default) {
+    foreach ($env_vars as $key => $spec) {
         if (preg_match('/^' . preg_quote((string) $key, '/') . '=/m', $current)) {
             continue;
         }
-        $append .= $key . '=' . (string) $default . "\n";
+        $default     = is_array($spec) ? (string) ($spec['default'] ?? '') : (string) $spec;
+        $description = is_array($spec) ? trim((string) ($spec['description'] ?? '')) : '';
+        if ($description !== '') {
+            foreach (explode("\n", wordwrap($description, 72)) as $comment_line) {
+                $append .= '# ' . $comment_line . "\n";
+            }
+        }
+        $append .= $key . '=' . $default . "\n";
     }
     if ($append !== '') {
-        file_put_contents($env_file, rtrim($current, "\n") . "\n" . $append, LOCK_EX);
+        $header = "\n# --- $module_name " . str_repeat('-', max(1, 60 - strlen($module_name))) . "\n";
+        file_put_contents($env_file, rtrim($current, "\n") . "\n" . $header . $append, LOCK_EX);
     }
 }
 

@@ -54,6 +54,15 @@ engine, and you can ignore it.
 It ships with a working demo site (a fictional coffee roastery) so there is
 always something on screen, and the setup interview replaces it with yours.
 
+The content model is WordPress's, on purpose: pages are timeless, posts have
+a date and a category. That is the mental model most people arriving here
+already have, and it is why a WordPress export maps across without a
+translation layer. Where the framework has opinions beyond that — the
+directory layout, the frontmatter names, the rule that a translation is the
+same filename in another language — [`docs/CONTENT-MODEL.md`](docs/CONTENT-MODEL.md)
+says which parts are load-bearing and which are just how the two origin
+sites happened to be organised, and how to change the latter.
+
 ## Why PHP (yes, really)
 
 Because this is not a static site, and the alternative is worse.
@@ -102,6 +111,7 @@ was built to:
 | [`AGENTS.md`](AGENTS.md) | Instructions your assistant reads. `CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` point here |
 | [`LIMITATIONS.md`](LIMITATIONS.md) | How an AI assistant will get this wrong. Read it |
 | [`docs/SETUP.md`](docs/SETUP.md) | The interview that turns the demo into your site |
+| [`docs/CONTENT-MODEL.md`](docs/CONTENT-MODEL.md) | What is mechanism, what is just convention, and how to change either |
 | [`docs/MODULES.md`](docs/MODULES.md) | The optional features and what each costs you |
 | [`docs/CREATING-MODULES.md`](docs/CREATING-MODULES.md) | Writing your own, and contributing it |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Putting it on the internet |

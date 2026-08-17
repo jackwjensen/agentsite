@@ -5,8 +5,14 @@
   "requires": [],
   "core_min": "1",
   "env": {
-    "ADMIN_PATH": "/admin",
-    "ADMIN_STEALTH": ""
+    "ADMIN_PATH": {
+      "default": "/admin",
+      "description": "Where the admin area lives. If you change it, change config/routes.d/admin.php to match. The password is NOT set here — run scripts/admin-password.php, which writes config/admin-password.hash."
+    },
+    "ADMIN_STEALTH": {
+      "default": "",
+      "description": "Set to 1 and an unauthenticated visitor gets the site's ordinary 404 instead of a login form, so the admin area is not discoverable by probing."
+    }
   },
   "verify": [
     "php scripts/validate-content.php",

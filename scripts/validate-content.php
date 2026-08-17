@@ -144,6 +144,65 @@ foreach ((array) cfg('categories') as $code => $labels) {
     }
 }
 
+// Configuration must explain itself. Every key in .env.example needs a
+// comment above it, and every variable a module declares needs a
+// description — because the person setting SMTP_USER six months from now is
+// reading .env, not the module's documentation. A `#` comment IS the
+// documentation here, so this rule can never punish self-documenting config.
+$env_example = ROOT . '/.env.example';
+if (is_file($env_example)) {
+    $env_lines    = file($env_example, FILE_IGNORE_NEW_LINES) ?: [];
+    $has_comment  = false;
+    foreach ($env_lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '') {
+            // A blank line ends the comment block. Without this, one comment
+            // anywhere above would credit every key for the rest of the file
+            // — which is how a rule like this quietly stops checking
+            // anything.
+            $has_comment = false;
+            continue;
+        }
+        if (str_starts_with($trimmed, '#')) {
+            $has_comment = true;
+            continue;
+        }
+        if (preg_match('/^([A-Z0-9_]+)=/', $trimmed, $m)) {
+            if (!$has_comment) {
+                $fail('.env.example', "{$m[1]} has no comment explaining what it does");
+            }
+            $has_comment = false;
+        }
+    }
+}
+
+foreach (glob(ROOT . '/modules/*/module.json') ?: [] as $manifest_path) {
+    $module_name = basename(dirname($manifest_path));
+    $manifest    = json_decode((string) file_get_contents($manifest_path), true);
+    if (!is_array($manifest)) {
+        $fail("modules/$module_name/module.json", 'is not valid JSON');
+        continue;
+    }
+    foreach (['name', 'version', 'description'] as $manifest_key) {
+        if (!isset($manifest[$manifest_key]) || trim((string) $manifest[$manifest_key]) === '') {
+            $fail("modules/$module_name/module.json", "missing '$manifest_key'");
+        }
+    }
+    if (($manifest['name'] ?? '') !== $module_name) {
+        $fail("modules/$module_name/module.json", "name '{$manifest['name']}' does not match its directory");
+    }
+    foreach ((array) ($manifest['requires'] ?? []) as $dependency) {
+        if (!is_dir(ROOT . "/modules/$dependency")) {
+            $fail("modules/$module_name/module.json", "requires '$dependency', which is not a module here");
+        }
+    }
+    foreach ((array) ($manifest['env'] ?? []) as $env_key => $spec) {
+        if (!is_array($spec) || trim((string) ($spec['description'] ?? '')) === '') {
+            $fail("modules/$module_name/module.json", "env var '$env_key' has no description — it would land in the user's .env unexplained");
+        }
+    }
+}
+
 // ── 2–4. Content files ───────────────────────────────────────────────────
 $today   = site_today();
 $max_iso = (new DateTimeImmutable($today))->modify('+2 years')->format('Y-m-d');

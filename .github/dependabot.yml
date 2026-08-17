@@ -1,0 +1,19 @@
+# The site itself has no dependencies — no package manager, no lockfile, one
+# vendored markdown parser. The only thing here that CAN drift is the set of
+# GitHub Actions the CI workflow pins, and a stale action major is how a
+# workflow ends up on a runtime that has been deprecated for a year.
+#
+# So this watches exactly that, monthly, which is as often as action majors
+# actually move. The Docker base image (php:8.3-fpm-alpine) is deliberately
+# NOT watched: PHP minor releases land in that tag continuously, so a bump
+# would be noise, and moving to 8.4 is a decision rather than an update.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"

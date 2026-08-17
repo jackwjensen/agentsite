@@ -5,14 +5,26 @@
   "requires": [],
   "core_min": "1",
   "env": {
-    "SMTP_HOST": "",
-    "SMTP_PORT": "587",
-    "SMTP_USER": "",
-    "SMTP_PASS": "",
-    "MAIL_TO": "you@example.com",
-    "MAIL_FROM": "noreply@example.com",
-    "MAIL_FROM_NAME": "Website contact form",
-    "FORM_TOKEN_SECRET": ""
+    "SMTP_HOST": {
+      "default": "",
+      "description": "Mail server hostname. Leave EMPTY in development — the compose override points the site at the local mail catcher, so nothing can reach a real inbox."
+    },
+    "SMTP_PORT": { "default": "587", "description": "Usually 587 (STARTTLS)." },
+    "SMTP_USER": {
+      "default": "",
+      "description": "Set BOTH user and password, or NEITHER. Both empty means an unauthenticated relay; one of each is a misconfiguration and the mailer refuses to send."
+    },
+    "SMTP_PASS": { "default": "", "description": "See SMTP_USER." },
+    "MAIL_TO": { "default": "you@example.com", "description": "Where submissions are delivered." },
+    "MAIL_FROM": {
+      "default": "noreply@example.com",
+      "description": "Envelope sender. Use an address on your own domain or SPF/DKIM will reject it."
+    },
+    "MAIL_FROM_NAME": { "default": "Website contact form", "description": "Display name on the From header." },
+    "FORM_TOKEN_SECRET": {
+      "default": "",
+      "description": "Signs the form's anti-spam token. Left empty, one is generated and stored automatically."
+    }
   },
   "verify": [
     "php scripts/validate-content.php",
