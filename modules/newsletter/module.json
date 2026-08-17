@@ -1,0 +1,13 @@
+{
+  "name": "newsletter",
+  "version": "1",
+  "description": "Double opt-in subscribe form with a file-based list and an admin page. No third-party account.",
+  "requires": ["admin"],
+  "core_min": "1",
+  "env": {},
+  "verify": [
+    "php scripts/validate-content.php",
+    "curl -sf http://localhost:8080/subscribe/ | grep -q 'name=\"email\"'",
+    "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/admin/newsletter/"
+  ]
+}
