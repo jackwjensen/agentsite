@@ -59,6 +59,16 @@ foreach (($css_files ?? ['tokens', 'base']) as $css):
   <link rel="alternate" type="text/markdown" href="<?= $h((string) $md_url) ?>" title="This page in Markdown">
 <?php endif; ?>
 <?php render_seo_head($seo ?? ['lang' => $lang, 'alternates' => $alternates]); ?>
+<?php
+// Anything an installed module wants in <head> — feed autodiscovery, a
+// verification meta tag, a preconnect. Discovered by filename, like routes
+// and i18n: a module drops one file here and nothing central is edited, so
+// two modules cannot collide except on a filename, which the installer
+// refuses loudly.
+foreach (glob(ROOT . '/templates/partials/head/*.php') ?: [] as $head_partial) {
+    include $head_partial;
+}
+?>
 </head>
 <body>
   <a class="skip-link" href="#main"><?= $h(t('skip_to_content')) ?></a>

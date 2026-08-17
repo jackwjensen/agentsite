@@ -1,0 +1,13 @@
+{
+  "name": "rss",
+  "version": "1",
+  "description": "RSS 2.0 and Atom feeds for the blog, one per language, with autodiscovery.",
+  "requires": [],
+  "core_min": "1",
+  "env": {},
+  "verify": [
+    "php scripts/validate-content.php",
+    "curl -sf http://localhost:8080/feed.xml | head -3",
+    "curl -s http://localhost:8080/ | grep -q 'application/rss+xml'"
+  ]
+}

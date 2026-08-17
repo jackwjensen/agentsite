@@ -62,11 +62,15 @@ if (str_ends_with($seo_path, '.md')) {
     }
 }
 
-// Normalise URI: strip query string, ensure leading + trailing slash (nginx
-// already redirects to a trailing slash; be defensive anyway).
+// Normalise URI: strip the query string, ensure a leading slash, and add a
+// trailing slash — EXCEPT on paths containing a dot, which are files rather
+// than directories (/feed.xml, /about.md). That exception mirrors nginx's
+// redirect rule exactly; without it, a route whose path ends in a file
+// extension can never be matched, because the router would be handed
+// "/feed.xml/" and the route says "/feed.xml".
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $uri = '/' . trim((string) $uri, '/');
-if ($uri !== '/') {
+if ($uri !== '/' && !str_contains($uri, '.')) {
     $uri .= '/';
 }
 
