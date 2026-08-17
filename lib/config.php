@@ -97,17 +97,22 @@ function lang_path(string $lang, string $route, array $params = []): string
         throw new RuntimeException("unknown language: $lang");
     }
 
-    $entry = $routes[$route];
+    $entry     = $routes[$route];
+    $per_lang  = $entry['paths'] ?? $entry['patterns'];
+    $is_neutral = isset($per_lang[ROUTE_ANY_LANG]);
+
     if (isset($entry['paths'])) {
-        $path = (string) ($entry['paths'][$lang] ?? $entry['paths'][default_lang()]);
+        $path = (string) ($per_lang[ROUTE_ANY_LANG] ?? $per_lang[$lang] ?? $per_lang[default_lang()]);
     } else {
-        $path = (string) ($entry['patterns'][$lang] ?? $entry['patterns'][default_lang()]);
+        $path = (string) ($per_lang[ROUTE_ANY_LANG] ?? $per_lang[$lang] ?? $per_lang[default_lang()]);
         foreach ($params as $name => $value) {
             $path = str_replace('{' . $name . '}', (string) $value, $path);
         }
     }
 
-    $prefix = (string) $languages[$lang]['prefix'];
+    // A language-neutral route has exactly one URL, unprefixed — see the
+    // ROUTE_ANY_LANG note in lib/router.php.
+    $prefix = $is_neutral ? '' : (string) $languages[$lang]['prefix'];
     $full   = $prefix . $path;
     return $full === '' ? '/' : $full;
 }

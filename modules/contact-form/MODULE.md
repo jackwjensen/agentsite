@@ -59,16 +59,18 @@ Development gets the mail catcher; production has to opt in to real SMTP
 ```yaml
 services:
   web:
+    # Undo the development override's pin. Everything else already reaches
+    # the container from .env, because the base compose file loads it.
     environment:
-      SMTP_HOST:         "${SMTP_HOST:-}"
-      SMTP_PORT:         "${SMTP_PORT:-587}"
-      SMTP_USER:         "${SMTP_USER:-}"
-      SMTP_PASS:         "${SMTP_PASS:-}"
-      MAIL_TO:           "${MAIL_TO:-}"
-      MAIL_FROM:         "${MAIL_FROM:-}"
-      MAIL_FROM_NAME:    "${MAIL_FROM_NAME:-}"
-      FORM_TOKEN_SECRET: "${FORM_TOKEN_SECRET:-}"
+      SMTP_HOST: "${SMTP_HOST:-}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_USER: "${SMTP_USER:-}"
+      SMTP_PASS: "${SMTP_PASS:-}"
 ```
+
+**If your SMTP password contains a `$`**, write it as `$$` in that
+interpolated form — or leave these four out entirely and let `.env` supply
+them, which does not interpolate at all.
 
 That direction is deliberate: development cannot be made to send real mail by
 a `.env` mistake, because the file development always loads names the catcher

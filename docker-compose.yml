@@ -20,6 +20,19 @@ services:
       - ./config:/var/www/html/config
       - ./scripts:/var/www/html/scripts
       - ./_logs:/var/www/html/_logs
+    # Everything in .env reaches the container as-is. env_file does NOT
+    # interpolate, which matters more than it sounds: a bcrypt password hash
+    # contains `$`, and `${VAR}`-style interpolation would eat half of it and
+    # hand the app a silently wrong value. Modules therefore document plain
+    # .env variables and never need to touch this file.
+    #
+    # Precedence to keep in mind: an `environment:` entry beats env_file. The
+    # contact-form module relies on exactly that — its development override
+    # pins SMTP_HOST to the local mail catcher there, so no .env value can
+    # redirect development mail to a real mailbox.
+    env_file:
+      - path: .env
+        required: false
     environment:
       APP_DEBUG: "${APP_DEBUG:-}"
     restart: unless-stopped

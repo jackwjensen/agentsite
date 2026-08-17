@@ -1,0 +1,16 @@
+{
+  "name": "admin",
+  "version": "1",
+  "description": "Optional password-protected admin area. Off by default; other modules add pages to it.",
+  "requires": [],
+  "core_min": "1",
+  "env": {
+    "ADMIN_PATH": "/admin",
+    "ADMIN_STEALTH": ""
+  },
+  "verify": [
+    "php scripts/validate-content.php",
+    "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/admin/",
+    "curl -sI http://localhost:8080/admin/ | grep -qi 'x-robots-tag: noindex'"
+  ]
+}

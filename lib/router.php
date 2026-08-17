@@ -2,6 +2,15 @@
 declare(strict_types=1);
 
 /**
+ * The pseudo-language key a route uses to say "one URL, no language prefix,
+ * the same in every language". Some pages have an owner rather than an
+ * audience — an admin area is the standing example — and translating their
+ * URL would only create a second address to secure. Such a route resolves in
+ * the site's default language and emits no hreflang alternates.
+ */
+const ROUTE_ANY_LANG = '*';
+
+/**
  * Route a normalised URI (leading + trailing slash) to a template.
  *
  * The dispatch table is built from config: every route × every configured
@@ -50,10 +59,15 @@ function route_tables(): array
     $patterns = [];
 
     foreach (routes_all() as $route_name => $entry) {
-        $template = (string) $entry['template'];
-        foreach (site_langs() as $lang) {
+        $template  = (string) $entry['template'];
+        $per_lang  = $entry['paths'] ?? $entry['patterns'] ?? [];
+        // A language-neutral route registers once, in the default language,
+        // with no prefix.
+        $langs     = isset($per_lang[ROUTE_ANY_LANG]) ? [default_lang()] : site_langs();
+
+        foreach ($langs as $lang) {
             if (isset($entry['paths'])) {
-                if (!isset($entry['paths'][$lang])) {
+                if (!isset($entry['paths'][$lang]) && !isset($entry['paths'][ROUTE_ANY_LANG])) {
                     continue;
                 }
                 $path = lang_path($lang, $route_name);
@@ -66,10 +80,13 @@ function route_tables(): array
                 continue;
             }
 
-            if (!isset($entry['patterns'][$lang])) {
+            $neutral_pattern = $entry['patterns'][ROUTE_ANY_LANG] ?? null;
+            if ($neutral_pattern === null && !isset($entry['patterns'][$lang])) {
                 continue;
             }
-            $full = (string) cfg('languages')[$lang]['prefix'] . (string) $entry['patterns'][$lang];
+            $full = $neutral_pattern !== null
+                ? (string) $neutral_pattern
+                : (string) cfg('languages')[$lang]['prefix'] . (string) $entry['patterns'][$lang];
 
             // Swap each {placeholder} for an alphanumeric marker (preg_quote
             // leaves alphanumerics untouched; route paths are lowercase, so

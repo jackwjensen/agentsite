@@ -7,6 +7,11 @@
 # container at runtime, bind-mounted, never versioned.
 _logs/
 
+# The admin module's password hash. A credential, so it stays out of git —
+# it lives in a file rather than .env because Docker Compose interpolates
+# `$` in .env and a bcrypt hash is full of them.
+config/admin-password.hash
+
 # OS files
 .DS_Store
 Thumbs.db

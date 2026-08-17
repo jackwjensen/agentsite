@@ -18,18 +18,15 @@
 # for development to fail.
 services:
   web:
+    # `environment:` beats `env_file:`, so these four win over whatever .env
+    # says — which is the entire safety property. The module's other
+    # variables (MAIL_TO, MAIL_FROM, FORM_TOKEN_SECRET) need no entry here:
+    # the base compose file loads .env wholesale.
     environment:
-      # Hardcoded — see the note above. This is the safety property.
       SMTP_HOST: "mailhog"
       SMTP_PORT: "1025"
       SMTP_USER: ""
       SMTP_PASS: ""
-      # These are safe to read from .env: they decide what the message SAYS,
-      # not where it goes. The destination is pinned by SMTP_HOST above.
-      MAIL_TO:           "${MAIL_TO:-}"
-      MAIL_FROM:         "${MAIL_FROM:-}"
-      MAIL_FROM_NAME:    "${MAIL_FROM_NAME:-}"
-      FORM_TOKEN_SECRET: "${FORM_TOKEN_SECRET:-}"
     depends_on:
       - mailhog
 

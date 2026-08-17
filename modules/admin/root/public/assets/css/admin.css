@@ -1,0 +1,99 @@
+/* Installed from modules/admin (v1).
+ * Loaded only on admin pages — index.php picks the slice named after the
+ * template. */
+
+.admin-login { padding: 4rem 1.25rem; }
+.admin-login-inner {
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+.admin-login h1 { margin: 0 0 1.25rem; font-size: 1.4rem; }
+
+.admin-form .form-row { margin-bottom: 1rem; }
+.admin-form label {
+  display: block;
+  margin-bottom: .3rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.admin-form input[type="password"],
+.admin-form input[type="text"] {
+  width: 100%;
+  padding: .6rem .75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font: inherit;
+}
+.admin-form input:focus { border-color: var(--brand); }
+
+.form-notice {
+  padding: .7rem .9rem;
+  border-radius: var(--radius-sm);
+  margin: 0 0 1rem;
+  font-size: .95rem;
+}
+.form-notice-error { background: var(--error-tint); color: var(--error); }
+.form-notice-warn  { background: var(--warn-tint);  color: var(--warn); }
+.form-notice-ok    { background: var(--ok-tint);    color: var(--ok); }
+.form-notice code {
+  display: block;
+  margin-top: .4rem;
+  font-size: .9em;
+}
+
+.admin-shell { padding-bottom: 3rem; }
+.admin-bar {
+  background: var(--brand-deep);
+  color: #fff;
+  padding: .75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+.admin-brand {
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+.admin-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.admin-nav a {
+  color: #cfe4f5;
+  text-decoration: none;
+  font-size: .95rem;
+}
+.admin-nav a:hover,
+.admin-nav a[aria-current="page"] { color: #fff; }
+.admin-logout { font-weight: 600; }
+
+.admin-body {
+  max-width: var(--wide-width);
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+.admin-page-list { padding-left: 1.1rem; }
+.admin-page-list li { margin-bottom: .4rem; }
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.admin-table th,
+.admin-table td {
+  border: 1px solid var(--line);
+  padding: .5rem .75rem;
+  text-align: left;
+  font-size: .95rem;
+}
+.admin-table th { background: var(--paper-soft); }
