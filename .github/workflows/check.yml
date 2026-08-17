@@ -1,0 +1,86 @@
+# ---------------------------------------------------------------------------
+# The only CI this framework has, and deliberately so.
+#
+# Every check here is OBJECTIVE: it answers "is the site broken?", never "is
+# this the house style?". A contributor's brace placement, variable names and
+# file lengths are their business — a framework that lints opinions collects
+# arguments instead of modules.
+#
+# What that leaves is worth gating on:
+#   1. php -l          — a syntax error takes the whole site down.
+#   2. validate-content — config, frontmatter, translations, i18n parity and
+#                        image references: the things that break a page
+#                        silently rather than loudly.
+#   3. image budget    — an unoptimised hero is the single easiest way to
+#                        ruin a site's performance, and it is invisible in
+#                        review.
+#   4. raw <img> lint  — images must go through render_picture() or they lose
+#                        WebP, sizing and lazy-loading.
+#   5. module round-trip — every in-tree module must install, pass, uninstall
+#                        and leave the tree byte-identical. This is what keeps
+#                        module PRs reviewable: the mechanism is tested, not
+#                        the reviewer's patience.
+#
+# No secrets, no deploy, no network beyond checkout: this workflow runs
+# unchanged in every fork.
+# ---------------------------------------------------------------------------
+name: check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container: php:8.3-cli-alpine
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: PHP syntax (php -l)
+        run: sh scripts/lint-php.sh
+
+      - name: Content and config validation
+        run: php scripts/validate-content.php
+
+      - name: Image budget
+        run: php scripts/check-image-budget.php
+
+      - name: No raw <img> tags in templates or modules
+        run: |
+          if grep -rn --include='*.php' '<img' templates/ modules/ 2>/dev/null; then
+            echo "::error::Raw <img> tag found. Use render_picture() from lib/images.php so the image gets WebP variants, width/height and lazy-loading."
+            exit 1
+          fi
+          echo "No raw <img> tags."
+
+      - name: Module install round-trip
+        run: |
+          apk add --no-cache git > /dev/null
+          git config --global --add safe.directory "$(pwd)"
+          if [ ! -d modules ] || [ -z "$(ls -A modules 2>/dev/null)" ]; then
+            echo "No modules to test."
+            exit 0
+          fi
+          status=0
+          for dir in modules/*/; do
+            name="$(basename "$dir")"
+            echo "--- $name"
+            php scripts/module.php install "$name" --yes || { echo "::error::$name failed to install"; status=1; continue; }
+            sh scripts/lint-php.sh            || { echo "::error::$name breaks php -l";   status=1; }
+            php scripts/validate-content.php  || { echo "::error::$name breaks validation"; status=1; }
+            php scripts/module.php uninstall "$name" --yes || { echo "::error::$name failed to uninstall"; status=1; }
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "::error::$name did not clean up after itself:"
+              git status --porcelain
+              git checkout -- . 2>/dev/null || true
+              git clean -fd 2>/dev/null || true
+              status=1
+            fi
+          done
+          exit $status
