@@ -37,7 +37,7 @@ case "$cmd" in
   check)
     # The same gates CI runs.
     docker run --rm -v "$(pwd):/repo" -w /repo php:8.3-cli-alpine sh -c \
-      'sh scripts/lint-php.sh && php scripts/validate-content.php && php scripts/check-image-budget.php'
+      'sh scripts/lint-php.sh && php scripts/validate-content.php && php scripts/check-image-budget.php && php scripts/check-doc-links.php'
     ;;
   *)
     echo "Unknown command: $cmd"

@@ -84,7 +84,9 @@ foreach (routes_all() as $route_name => $entry) {
         continue;
     }
     $per_lang = $entry['paths'] ?? $entry['patterns'];
-    if (!isset($per_lang[$default])) {
+    // A language-neutral route (ROUTE_ANY_LANG) deliberately has one URL and
+    // no per-language entries.
+    if (!isset($per_lang[ROUTE_ANY_LANG]) && !isset($per_lang[$default])) {
         $fail("route '$route_name'", "has no path/pattern for the default language '$default'");
     }
     if (!is_file(ROOT . '/templates/' . $entry['template'] . '.php')) {
@@ -252,40 +254,113 @@ if (count($languages) > 1) {
 }
 
 // ── 6. i18n key parity ───────────────────────────────────────────────────
-$used_keys = [];
-$template_files = array_merge(
-    glob(ROOT . '/templates/*.php') ?: [],
-    glob(ROOT . '/templates/*/*.php') ?: [],
-    glob(ROOT . '/modules/*/root/templates/*.php') ?: [],
-    glob(ROOT . '/modules/*/root/templates/*/*.php') ?: []
-);
-foreach ($template_files as $tpl) {
-    $src = file_get_contents($tpl);
-    if ($src === false) continue;
-    if (preg_match_all("/\\bt\\(\\s*'([^']+)'\\s*\\)/", $src, $m)) {
-        foreach ($m[1] as $key) {
-            $used_keys[$key][] = str_replace('\\', '/', substr($tpl, strlen(ROOT) + 1));
+//
+// Two separate questions, deliberately not conflated:
+//
+//   a) Does every key the SITE's templates use exist in every language the
+//      site is configured for? The site's own files plus any installed
+//      module's files answer this.
+//   b) Does every key a MODULE's templates use exist in that module's own
+//      language files? A module carries its strings with it, so it is
+//      checked against itself — otherwise every uninstalled module would
+//      report its whole vocabulary as missing.
+
+/** Extract t('key') and t_opt('key') literals from a set of template files. */
+$collect_keys = static function (array $template_files): array {
+    $keys = [];
+    foreach ($template_files as $template) {
+        $source = file_get_contents($template);
+        if ($source === false) continue;
+        if (preg_match_all("/\\bt(?:_opt)?\\(\\s*'([^']+)'\\s*\\)/", $source, $m)) {
+            foreach ($m[1] as $key) {
+                $keys[$key][] = str_replace('\\', '/', substr($template, strlen(ROOT) + 1));
+            }
         }
     }
-}
-// Module templates look their keys up in i18n/modules/<module>.<lang>.php —
-// include those files in the per-language key sets.
-$full_strings = $strings;
+    return $keys;
+};
+
+// (a) The site's own templates, against site + installed-module strings.
+$site_strings = $strings;
 foreach (array_keys($languages) as $code) {
-    foreach (glob(ROOT . "/i18n/modules/*.$code.php") as $module_file) {
+    foreach (glob(ROOT . "/i18n/modules/*.$code.php") ?: [] as $module_file) {
         $module_strings = require $module_file;
         if (is_array($module_strings)) {
-            $full_strings[$code] = $module_strings + $full_strings[$code];
+            $site_strings[$code] = $module_strings + $site_strings[$code];
         }
     }
 }
-foreach ($used_keys as $key => $files) {
-    foreach ($full_strings as $code => $lang_strings) {
+$site_keys = $collect_keys(array_merge(
+    glob(ROOT . '/templates/*.php') ?: [],
+    glob(ROOT . '/templates/*/*.php') ?: [],
+    glob(ROOT . '/templates/*/*/*.php') ?: []
+));
+foreach ($site_keys as $key => $files) {
+    foreach ($site_strings as $code => $lang_strings) {
         if (!array_key_exists($key, $lang_strings)) {
-            // Only report against the site's own templates for module keys the
-            // module hasn't installed — an uninstalled module's templates are
-            // not globbed above, so anything here is genuinely reachable.
-            $fail($files[0], "t('$key') has no entry in i18n for language '$code'");
+            // t_opt() keys are optional by design — a core template offering
+            // a slot an installed module may fill.
+            $optional = str_contains((string) file_get_contents(ROOT . '/' . $files[0]), "t_opt('$key')");
+            if (!$optional) {
+                $fail($files[0], "t('$key') has no entry in i18n for language '$code'");
+            }
+        }
+    }
+}
+
+// (b) Each module's templates, against that module's own language files.
+foreach (glob(ROOT . '/modules/*', GLOB_ONLYDIR) ?: [] as $module_dir) {
+    $module_name = basename($module_dir);
+    $module_keys = $collect_keys(array_merge(
+        glob($module_dir . '/root/templates/*.php') ?: [],
+        glob($module_dir . '/root/templates/*/*.php') ?: [],
+        glob($module_dir . '/root/templates/*/*/*.php') ?: []
+    ));
+    if ($module_keys === []) {
+        continue;
+    }
+
+    $module_langs = [];
+    foreach (glob($module_dir . "/root/i18n/modules/$module_name.*.php") ?: [] as $lang_file) {
+        if (preg_match('/\.([a-z]{2}(?:-[A-Za-z]+)?)\.php$/', $lang_file, $m)) {
+            $loaded = require $lang_file;
+            $module_langs[$m[1]] = is_array($loaded) ? $loaded : [];
+        }
+    }
+    if ($module_langs === []) {
+        $fail("modules/$module_name", 'uses translated strings but ships no i18n/modules/ files');
+        continue;
+    }
+
+    // A module may use strings from a module it declares a dependency on —
+    // the newsletter's admin page reuses the admin module's error strings,
+    // which is correct precisely BECAUSE it requires admin. Undeclared
+    // borrowing still fails, which is the point.
+    $manifest_file = $module_dir . '/module.json';
+    $manifest      = is_file($manifest_file) ? json_decode((string) file_get_contents($manifest_file), true) : null;
+    foreach ((array) (is_array($manifest) ? ($manifest['requires'] ?? []) : []) as $dependency) {
+        foreach (array_keys($module_langs) as $code) {
+            $dep_file = ROOT . "/modules/$dependency/root/i18n/modules/$dependency.$code.php";
+            if (is_file($dep_file)) {
+                $dep_strings = require $dep_file;
+                if (is_array($dep_strings)) {
+                    $module_langs[$code] += $dep_strings;
+                }
+            }
+        }
+    }
+
+    foreach ($module_keys as $key => $files) {
+        foreach ($module_langs as $code => $lang_strings) {
+            if (array_key_exists($key, $lang_strings)) {
+                continue;
+            }
+            // A module may legitimately use a CORE key (nav_home,
+            // notfound_home) that the site already defines.
+            if (isset($strings[$code]) && array_key_exists($key, $strings[$code])) {
+                continue;
+            }
+            $fail($files[0], "t('$key') is not defined in modules/$module_name for language '$code'");
         }
     }
 }
@@ -314,5 +389,6 @@ if ($problems) {
 
 $pages = count($content_index['page'] ?? []);
 $posts = count($content_index['post'] ?? []);
-echo "Content validation OK — $pages page(s), $posts post(s), " . count($languages) . " language(s), " . count($used_keys) . " i18n keys checked.\n";
+echo "Content validation OK — $pages page(s), $posts post(s), " . count($languages)
+   . ' language(s), ' . count($site_keys) . " i18n keys checked.\n";
 exit(0);

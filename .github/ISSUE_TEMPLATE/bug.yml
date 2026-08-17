@@ -1,0 +1,53 @@
+name: Bug report
+description: Something in the framework does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        The most valuable reports are the ones where **a check passed and the
+        site was still broken** — that is a gap in the validator, and it
+        affects everyone rather than just you. Say so prominently if that is
+        what happened.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What you did and what happened
+      placeholder: |
+        $ php scripts/module.php install contact-form
+        $ ./dev.sh check
+        ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: input
+    id: modules
+    attributes:
+      label: Installed modules
+      description: The output of `php scripts/module.php status`, or "none".
+      placeholder: contact-form, rss
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: How you are running it
+      placeholder: Docker Desktop 4.x on Windows 11 / docker compose on Ubuntu 24.04 / PHP 8.3 + nginx, no Docker
+    validations:
+      required: true
+
+  - type: textarea
+    id: checks
+    attributes:
+      label: Output of ./dev.sh check
+      description: Paste it even if it passes — a passing check on a broken site is itself the finding.
+      render: text

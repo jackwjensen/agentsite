@@ -1,0 +1,61 @@
+# EXAMPLE — not wired up. Copy to .github/workflows/deploy.yml, replace every
+# placeholder, and read it before giving it SSH access to your server.
+#
+# It deploys by pulling on the server and restarting the container, which is
+# the whole deploy: there is no build step and no database migration.
+#
+# Secrets you need on the repository (Settings → Secrets and variables →
+# Actions):
+#   DEPLOY_HOST     your server's hostname or IP
+#   DEPLOY_USER     the SSH user (give it access to the site directory only)
+#   DEPLOY_SSH_KEY  that user's private key
+#
+# The deploy job waits for `check` to pass, so a broken site never ships.
+name: deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Reuse the repository's own checks rather than duplicating them.
+  check:
+    uses: ./.github/workflows/check.yml
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /srv/mysite                      # <-- your path
+
+            # Remember where we were, so a failure can go back.
+            PREVIOUS=$(git rev-parse HEAD)
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            docker compose up -d --build
+
+            # Wait for the container, then prove the site actually answers.
+            # A running container is not a working site: if the health check
+            # fails, roll back rather than leaving a broken deploy up.
+            sleep 5
+            if ! curl -fsS -o /dev/null http://127.0.0.1:8080/; then
+              echo "Health check failed — rolling back to $PREVIOUS"
+              git reset --hard "$PREVIOUS"
+              docker compose up -d --build
+              exit 1
+            fi
+
+            echo "Deployed $(git rev-parse --short HEAD)"

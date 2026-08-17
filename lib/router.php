@@ -2,15 +2,6 @@
 declare(strict_types=1);
 
 /**
- * The pseudo-language key a route uses to say "one URL, no language prefix,
- * the same in every language". Some pages have an owner rather than an
- * audience — an admin area is the standing example — and translating their
- * URL would only create a second address to secure. Such a route resolves in
- * the site's default language and emits no hreflang alternates.
- */
-const ROUTE_ANY_LANG = '*';
-
-/**
  * Route a normalised URI (leading + trailing slash) to a template.
  *
  * The dispatch table is built from config: every route × every configured

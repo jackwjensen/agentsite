@@ -16,7 +16,9 @@
 #                        review.
 #   4. raw <img> lint  — images must go through render_picture() or they lose
 #                        WebP, sizing and lazy-loading.
-#   5. module round-trip — every in-tree module must install, pass, uninstall
+#   5. doc links       — these docs are read by AI assistants, and one that
+#                        follows a dead link invents what the file said.
+#   6. module round-trip — every in-tree module must install, pass, uninstall
 #                        and leave the tree byte-identical. This is what keeps
 #                        module PRs reviewable: the mechanism is tested, not
 #                        the reviewer's patience.
@@ -50,6 +52,11 @@ jobs:
 
       - name: Image budget
         run: php scripts/check-image-budget.php
+
+      - name: Documentation links
+        # An assistant that follows a dead link invents what the file
+        # probably said, so a broken cross-reference is a correctness bug.
+        run: php scripts/check-doc-links.php
 
       - name: No raw <img> tags in templates or modules
         run: |

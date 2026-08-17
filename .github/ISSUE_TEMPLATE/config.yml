@@ -1,0 +1,20 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Scope — what this project does and does not accept
+    url: https://github.com/jackwjensen/agentsite/blob/main/CONTRIBUTING.md
+    about: >-
+      Read this before proposing a build step, a database, or a rewrite. Those
+      are scope decisions, not judgements about your idea, and the reasoning
+      is written down.
+  - name: Setup problem? Check the troubleshooting table first
+    url: https://github.com/jackwjensen/agentsite/blob/main/docs/SETUP.md
+    about: >-
+      Port already in use, a missing translation key, a post that will not
+      appear, changes not showing — the common ones are answered at the bottom
+      of SETUP.md.
+  - name: How an AI assistant will get this wrong
+    url: https://github.com/jackwjensen/agentsite/blob/main/LIMITATIONS.md
+    about: >-
+      If your assistant produced something wrong or invented, start here — it
+      is probably a documented failure mode rather than a bug in the
+      framework.

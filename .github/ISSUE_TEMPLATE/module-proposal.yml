@@ -1,0 +1,55 @@
+name: Module proposal
+description: Propose a new optional feature, or offer one you have built.
+labels: [module]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        **Describe the problem before the solution.** "I could not let readers
+        subscribe without adding a third party" is more useful than "add
+        Mailchimp support" — the first tells us what to solve, the second
+        assumes an answer. Modules are the main way this framework grows, so
+        proposals are welcome; see
+        [docs/WANTED.md](https://github.com/jackwjensen/agentsite/blob/main/docs/WANTED.md)
+        for gaps already identified.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What can you not do today, and what did you try instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: shape
+    attributes:
+      label: Roughly what it would add
+      description: >-
+        Which routes, which files, what it stores about visitors, and whether
+        it needs the admin module or any third-party account.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: offer
+    attributes:
+      label: Are you offering to build it?
+      options:
+        - "Yes, I would like to build it"
+        - "I have already built it and want to contribute it"
+        - "No, I am suggesting it"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      description: >-
+        These are non-negotiable for in-tree modules — see CONTRIBUTING.md. A
+        module that needs any of them is still welcome as a community module.
+      options:
+        - label: It needs no build step, bundler, or package manager
+        - label: It needs no database
+        - label: It edits no shared file (routes, strings and head tags go in its own files)

@@ -10,6 +10,20 @@ declare(strict_types=1);
  * module cannot conflict with the site owner's own configuration.
  */
 
+/**
+ * The pseudo-language key a route uses to say "one URL, no language prefix,
+ * the same in every language". Some pages have an owner rather than an
+ * audience — an admin area is the standing example — and translating their
+ * URL would only create a second address to secure. Such a route resolves in
+ * the site's default language and emits no hreflang alternates.
+ *
+ * Defined here rather than in the router because route files are CONFIG:
+ * anything that loads configuration must understand the vocabulary those
+ * files are written in, including command-line tools that never route a
+ * request.
+ */
+const ROUTE_ANY_LANG = '*';
+
 /** The full configuration array, loaded once per request. */
 function config(): array
 {
