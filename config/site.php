@@ -45,8 +45,8 @@ return [
         'legal_name'  => 'Nordlys Kaffe ApS',   // org profile; ignored for person
         'owner_name'  => 'Astrid Holm',          // author/founder; the Person node
         'email'       => 'hello@example.com',
-        'phone'       => null,                   // e.g. '+4512345678'
-        'vat_id'      => null,                   // e.g. 'DK12345678' — emitted in JSON-LD
+        'phone'       => null,                   // E.164, country code first, no spaces
+        'vat_id'      => null,                   // your VAT/company number — emitted in JSON-LD
         'iban'        => null,                   // published payment account, if you want one public
         'street'      => null,
         'postal_code' => null,

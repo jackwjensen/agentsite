@@ -110,11 +110,24 @@ foreach (array_keys($languages) as $code) {
     }
 }
 
+// The site's strings plus every installed module's — nav can legitimately
+// point at a label a module defines (a contact page, a newsletter), so both
+// halves have to be in view before anything is called missing.
+$site_strings = $strings;
+foreach (array_keys($languages) as $code) {
+    foreach (glob(ROOT . "/i18n/modules/*.$code.php") ?: [] as $module_file) {
+        $module_strings = require $module_file;
+        if (is_array($module_strings)) {
+            $site_strings[$code] = $module_strings + ($site_strings[$code] ?? []);
+        }
+    }
+}
+
 foreach ((array) cfg('nav') as $i => $item) {
     $key = (string) ($item['key'] ?? '');
-    foreach ($strings as $code => $lang_strings) {
+    foreach ($site_strings as $code => $lang_strings) {
         if ($key !== '' && !array_key_exists($key, $lang_strings)) {
-            $fail('config/site.php', "nav[$i] key '$key' missing from i18n/$code.php");
+            $fail('config/site.php', "nav[$i] key '$key' is defined nowhere for language '$code' (checked i18n/$code.php and any installed module)");
         }
     }
     $route = (string) ($item['route'] ?? '');
@@ -280,16 +293,8 @@ $collect_keys = static function (array $template_files): array {
     return $keys;
 };
 
-// (a) The site's own templates, against site + installed-module strings.
-$site_strings = $strings;
-foreach (array_keys($languages) as $code) {
-    foreach (glob(ROOT . "/i18n/modules/*.$code.php") ?: [] as $module_file) {
-        $module_strings = require $module_file;
-        if (is_array($module_strings)) {
-            $site_strings[$code] = $module_strings + $site_strings[$code];
-        }
-    }
-}
+// (a) The site's own templates, against site + installed-module strings
+// ($site_strings was assembled for the nav check above).
 $site_keys = $collect_keys(array_merge(
     glob(ROOT . '/templates/*.php') ?: [],
     glob(ROOT . '/templates/*/*.php') ?: [],
