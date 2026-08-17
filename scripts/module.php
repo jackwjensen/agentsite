@@ -365,7 +365,12 @@ function write_install_record(array $installed): void
         mkdir($dir, 0775, true);
     }
     ksort($installed);
-    file_put_contents($file, json_encode($installed, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+    // An empty PHP array encodes as `[]`, which would make the file's shape
+    // flip between object and array as the last module is removed — and a
+    // byte difference there is enough to fail CI's round-trip check. Cast to
+    // an object so "nothing installed" is always `{}`.
+    $payload = $installed === [] ? new stdClass() : $installed;
+    file_put_contents($file, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 }
 
 /**
