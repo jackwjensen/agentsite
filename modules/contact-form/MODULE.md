@@ -1,6 +1,6 @@
 ---
 module: contact-form
-version: 1
+version: 2
 requires: []
 core_min: "1"
 ---
@@ -24,7 +24,7 @@ a robot, and no visitor data is disclosed to anyone.
 | `i18n/modules/contact-form.{en,da}.php` | All of its UI strings |
 | `public/assets/css/contact.css` | Form styling (loaded only on this page) |
 | `scripts/prune-mail-logs.php` | Retention sweep — see **Retention** below |
-| `docker-compose.override.yml` | MailHog, so development can never send real mail |
+| `docker-compose.override.yml` | Mailpit, so development can never send real mail |
 
 ## Configuration
 
@@ -32,7 +32,7 @@ The installer appends these to `.env`:
 
 | Variable | What it does |
 |---|---|
-| `SMTP_HOST` | Leave **empty** in development — the compose override points the site at MailHog. |
+| `SMTP_HOST` | Leave **empty** in development — the compose override points the site at Mailpit. |
 | `SMTP_PORT` | Default `587`. |
 | `SMTP_USER` / `SMTP_PASS` | Set **both** or **neither**. Both empty means an unauthenticated relay (the dev catcher); one of each is a misconfiguration and the mailer refuses to send. |
 | `MAIL_TO` | Where submissions are delivered. |
@@ -146,9 +146,25 @@ curl -s -o /dev/null -w '%{http_code}\n' -X POST http://localhost:8080/contact/ 
      -d 'name=b&email=b@example.com&subject=x&message=y&order_ref=filled'   # expect 404
 ```
 
-Then submit the form in a browser and confirm the message appears in MailHog
-at <http://localhost:1080>. A file in `_logs/mail/` means the mailer was
+Then submit the form in a browser and confirm the message appears in Mailpit
+at <http://127.0.0.1:1080>. A file in `_logs/mail/` means the mailer was
 *reached* — only a redirect to `?sent=1` means it was *sent*.
+
+## Upgrading from v1
+
+v2 replaces the development mail catcher: MailHog (unmaintained since 2020,
+unpinned `:latest`) becomes Mailpit on an exact tag, and both ports are bound
+to `127.0.0.1` so the catcher is not reachable from your network. Nothing
+changes in production.
+
+    php scripts/module.php uninstall contact-form
+    php scripts/module.php install contact-form
+    docker compose up -d --build --remove-orphans
+
+Uninstall removes the module's files — **copy out anything you edited in
+them first** and re-apply it afterwards. Your `.env` and `_logs/` are kept.
+`--remove-orphans` removes the old `agentsite-mailhog` container, which the
+new override no longer names.
 
 ## Uninstall
 

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// Installed from modules/contact-form (v1).
+// Installed from modules/contact-form (v2).
 // Module strings are merged by load_i18n() after the site's own file.
 return [
     'nav_contact'               => 'Contact',

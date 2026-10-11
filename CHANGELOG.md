@@ -5,6 +5,17 @@ anything that could break an existing site is called out explicitly.
 
 The version in `VERSION` is what a module's `core_min` is checked against.
 
+## Unreleased
+
+**Changed**
+
+- contact-form module **v2**: the development mail catcher is now Mailpit
+  (`axllent/mailpit:v1.31.5`, pinned) instead of MailHog (`:latest`, no
+  release since 2020). The inbox stays at <http://127.0.0.1:1080> and SMTP
+  at `1025`, both now bound to `127.0.0.1` only. Development-only; production
+  mail is unaffected. **Existing sites:** follow "Upgrading from v1" in
+  [modules/contact-form/MODULE.md](modules/contact-form/MODULE.md).
+
 ## 1.0.0
 
 First release.

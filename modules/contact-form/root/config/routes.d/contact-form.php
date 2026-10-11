@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// Installed from modules/contact-form (v1).
+// Installed from modules/contact-form (v2).
 //
 // Module routes live in their own file. lib/config.php merges every
 // config/routes.d/*.php into the route table, so installing a module never

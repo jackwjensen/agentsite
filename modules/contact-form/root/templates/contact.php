@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact form — installed from modules/contact-form (v1).
+ * Contact form — installed from modules/contact-form (v2).
  *
  * Four spam layers run before validation; every rejection converges on ONE
  * closure ($reject_as_bot) so a layer added later cannot forget the

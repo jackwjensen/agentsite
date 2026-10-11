@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// Installed from modules/contact-form (v1). To update: re-run the installer.
+// Installed from modules/contact-form (v2). To update: uninstall, then install.
 //
 // Minimal SMTP client — fsockopen, STARTTLS by capability, AUTH LOGIN only
 // when credentials are configured and only over an encrypted channel.

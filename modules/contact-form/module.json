@@ -1,6 +1,6 @@
 {
   "name": "contact-form",
-  "version": "1",
+  "version": "2",
   "description": "Contact form with a four-layer spam defence and SMTP delivery.",
   "requires": [],
   "core_min": "1",

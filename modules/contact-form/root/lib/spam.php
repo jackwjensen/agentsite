@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// Installed from modules/contact-form (v1). To update: re-run the installer.
+// Installed from modules/contact-form (v2). To update: uninstall, then install.
 //
 // Four stacked layers of spam defence for the contact form. Each rejects the
 // submission on the spot and quarantines it; NONE blocklists an IP on a

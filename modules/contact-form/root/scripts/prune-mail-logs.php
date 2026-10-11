@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Installed from modules/contact-form (v1).
+ * Installed from modules/contact-form (v2).
  *
  * Retention sweep for contact-form records. Deletes .txt files older than
  * RETENTION_DAYS from BOTH _logs/mail/ (delivered) and

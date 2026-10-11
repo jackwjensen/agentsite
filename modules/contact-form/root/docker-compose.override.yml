@@ -1,8 +1,8 @@
-# Installed from modules/contact-form (v1).
+# Installed from modules/contact-form (v2).
 #
 # Development mail catcher. Docker Compose loads this file automatically, so
-# in development every message the site sends lands in MailHog's inbox at
-# http://localhost:1080 instead of a real mailbox.
+# in development every message the site sends lands in Mailpit's inbox at
+# http://127.0.0.1:1080 instead of a real mailbox.
 #
 # **SMTP_HOST is hardcoded here, not interpolated from .env, and that is the
 # safety property — do not "tidy" it into ${SMTP_HOST}.** Your .env
@@ -23,18 +23,17 @@ services:
     # variables (MAIL_TO, MAIL_FROM, FORM_TOKEN_SECRET) need no entry here:
     # the base compose file loads .env wholesale.
     environment:
-      SMTP_HOST: "mailhog"
+      SMTP_HOST: "mailpit"
       SMTP_PORT: "1025"
       SMTP_USER: ""
       SMTP_PASS: ""
     depends_on:
-      - mailhog
+      - mailpit
 
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: agentsite-mailhog
+  mailpit:
+    # Pinned to an exact release, never :latest — bump it deliberately.
+    image: axllent/mailpit:v1.31.5
+    container_name: agentsite-mailpit
     ports:
-      - "1080:8025"   # inbox (browse here)
-      - "1025:1025"   # SMTP (the site delivers here)
-    logging:
-      driver: "none"  # MailHog is chatty and says nothing useful
+      - "127.0.0.1:1080:8025"   # inbox (browse here)
+      - "127.0.0.1:1025:1025"   # SMTP (the site delivers here)
