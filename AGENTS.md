@@ -123,3 +123,30 @@ database, a build step or a third-party script to make a request work — the
 user chose this framework for what it does not have. If they need a web
 application, they need a web application, and it is more useful to tell them
 that than to turn this into a bad one.
+
+## Outside the Allegro IT engineering-standards pack, deliberately
+
+This repo is **not** to be brought under the engineering-standards pack
+(`/apply-standards`). That was decided on 2026-10-22, after a dry run, and is
+settled. A future apply should stop here rather than reopen it. Why:
+
+- **The pack would ship to every fork.** It installs a Python package, its
+  tests, `.claude/rules/` and git hooks into the repository — about 175
+  files. Every person who clones this gets them, including people who do not
+  know git and have no Python. That is exactly the tooling "What this is"
+  rules out.
+- **It enforces a house style this repo refuses.** CONTRIBUTING.md promises
+  that no contribution is declined over naming, formatting or file length,
+  and CI checks only whether the site works. The pack gates those very things.
+- **It contradicts decisions made here on purpose.** The base image follows
+  the floating `php:8.5-fpm-alpine` tag, patched through
+  `docker compose build --pull` (see SECURITY.md), while the pack demands an
+  exact pin. The production overlay publishes on `127.0.0.1:8080` for a
+  proxy on the same host, while the pack assumes one particular server's
+  proxy network. The vendored `lib/Parsedown.php` would fail its length and
+  strict-types rules for code this repo does not own.
+
+What still applies is the substance, not the gate. A real bug the pack's
+scanner would find is still a bug. Fix it here on its own merits, and add a
+check to `scripts/validate-content.php` or `check.yml` only when it is
+objective — "is the site broken?", never "is this the house style?".
