@@ -10,7 +10,7 @@ body:
         Mailchimp support" — the first tells us what to solve, the second
         assumes an answer. Modules are the main way this framework grows, so
         proposals are welcome; see
-        [docs/WANTED.md](https://github.com/jackwjensen/agentsite/blob/main/docs/WANTED.md)
+        [docs/WANTED.md](https://github.com/jackwjensen/agentsite/blob/HEAD/docs/WANTED.md)
         for gaps already identified.
 
   - type: textarea
