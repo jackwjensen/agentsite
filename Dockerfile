@@ -1,4 +1,7 @@
-FROM php:8.3-fpm-alpine
+# A floating tag on purpose: Docker Hub rebuilds it for every PHP 8.5 release,
+# so `docker compose build --pull` is all it takes to get a security fix. See
+# "Keeping a site patched" in SECURITY.md.
+FROM php:8.5-fpm-alpine
 
 RUN apk add --no-cache nginx supervisor
 

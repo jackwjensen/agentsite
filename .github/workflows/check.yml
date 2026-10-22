@@ -39,7 +39,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    container: php:8.3-cli-alpine
+    container: php:8.5-cli-alpine
 
     steps:
       - uses: actions/checkout@v5

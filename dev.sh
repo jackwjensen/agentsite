@@ -15,8 +15,11 @@ case "$cmd" in
     docker compose down
     ;;
   reset)
+    # --pull fetches the current PHP base image; a plain rebuild reuses the
+    # cached one, PHP security fixes included.
     docker compose down
-    docker compose up --build -d
+    docker compose build --pull
+    docker compose up -d
     echo
     echo "Rebuild complete: http://localhost:8080"
     ;;
@@ -32,11 +35,11 @@ case "$cmd" in
     # with the repo root mounted rather than in the web container, which only
     # mounts the site's own directories.
     shift
-    docker run --rm -v "$(pwd):/repo" -w /repo php:8.3-cli-alpine php scripts/module.php "$@"
+    docker run --rm -v "$(pwd):/repo" -w /repo php:8.5-cli-alpine php scripts/module.php "$@"
     ;;
   check)
     # The same gates CI runs.
-    docker run --rm -v "$(pwd):/repo" -w /repo php:8.3-cli-alpine sh -c \
+    docker run --rm -v "$(pwd):/repo" -w /repo php:8.5-cli-alpine sh -c \
       'sh scripts/lint-php.sh && php scripts/validate-content.php && php scripts/check-image-budget.php && php scripts/check-doc-links.php'
     ;;
   *)

@@ -7,6 +7,21 @@ The version in `VERSION` is what a module's `core_min` is checked against.
 
 ## Unreleased
 
+**Security**
+
+- PHP **8.3 → 8.5** (`php:8.5-fpm-alpine`; CI and `dev check` on
+  `php:8.5-cli-alpine`). 8.5 is supported for years longer than 8.3, whose
+  security fixes end on 31 December 2027. The code, every module and the CI
+  checks ran unchanged and without a single deprecation notice on 8.5.12.
+- Deploys now rebuild with `docker compose build --pull`. A plain `--build`
+  reuses the PHP base image cached on the first deploy, so a site never got a
+  PHP security release however often it was redeployed — PHP2Shell
+  (CVE-2026-109618, CVE-2026-109619, fixed in 8.5.12 / 8.3.36) is the case
+  that exposed it. **Existing sites:** run
+  `git pull && docker compose build --pull && docker compose up -d` and check
+  `docker compose exec web php -v` reports 8.5.12 or later. Change your own
+  deploy script the same way if you copied `docs/examples/deploy.yml`.
+
 **Changed**
 
 - contact-form module **v2**: the development mail catcher is now Mailpit

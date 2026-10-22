@@ -4,9 +4,10 @@
 # workflow ends up on a runtime that has been deprecated for a year.
 #
 # So this watches exactly that, monthly, which is as often as action majors
-# actually move. The Docker base image (php:8.3-fpm-alpine) is deliberately
-# NOT watched: PHP minor releases land in that tag continuously, so a bump
-# would be noise, and moving to 8.4 is a decision rather than an update.
+# actually move. The Docker base image (php:8.5-fpm-alpine) is deliberately
+# NOT watched: PHP patch releases land in that tag continuously and reach a
+# site through `docker compose build --pull`, so a bump would be noise, and
+# moving to the next PHP minor is a decision rather than an update.
 version: 2
 updates:
   - package-ecosystem: "github-actions"

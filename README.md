@@ -144,7 +144,7 @@ fights your site. See [`docs/MODULES.md`](docs/MODULES.md).
 
 ## Requirements
 
-Docker, or any host with PHP 8.3 and nginx.
+Docker, or any host with PHP 8.5 and nginx.
 
 ```bash
 ./dev.sh up        # Windows: dev.bat up      -> http://localhost:8080

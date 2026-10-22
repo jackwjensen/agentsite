@@ -45,7 +45,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            docker compose up -d --build
+            # --pull fetches the current php:8.5-fpm-alpine, which is how PHP
+            # security releases reach the server. Without it Docker reuses the
+            # base image cached on the first deploy, forever.
+            docker compose build --pull
+            docker compose up -d
 
             # Wait for the container, then prove the site actually answers.
             # A running container is not a working site: if the health check

@@ -71,12 +71,19 @@ can decide whether you have found something better:
 ## Keeping a site patched
 
 There are no dependencies to update — no package manager, no lockfile, one
-vendored markdown parser. Updating means pulling this repository and
-restarting:
+vendored markdown parser. What does need patching is PHP itself, and that
+arrives through the base image: the Dockerfile follows a floating
+`php:8.5-fpm-alpine` tag, which Docker Hub rebuilds for every PHP release.
+Updating means pulling this repository and rebuilding with `--pull`:
 
 ```bash
-git pull && docker compose up -d --build
+git pull && docker compose build --pull && docker compose up -d
 ```
+
+Without `--pull`, Docker reuses the base image it cached the first time and
+the site keeps running whatever PHP was current on that day — every rebuild
+looks successful and none of them patches anything. Check what is actually
+running with `docker compose exec web php -v`.
 
 Watch [CHANGELOG.md](CHANGELOG.md); anything security-relevant is called out
 there explicitly rather than left for you to infer from a diff.

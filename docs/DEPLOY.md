@@ -90,7 +90,8 @@ reaches the browser.
 
 ## Without Docker
 
-This runs where WordPress runs. Any host with PHP 8.3 and nginx or Apache:
+This runs where WordPress runs. Any host with PHP 8.5 and nginx or Apache — keep
+that PHP on its latest patch release, since nothing here does it for you:
 
 1. Upload the repository.
 2. Point the document root at `public/`.
@@ -104,8 +105,14 @@ is what keeps `/feed.xml` and `/about.md` working).
 ## Deploying changes
 
 ```bash
-cd /srv/mysite && git pull && docker compose up -d --build
+cd /srv/mysite && git pull && docker compose build --pull && docker compose up -d
 ```
+
+`--pull` is what keeps PHP patched. The Dockerfile follows the floating
+`php:8.5-fpm-alpine` tag, which Docker Hub rebuilds for every PHP release,
+but a plain `--build` reuses the base image the server cached on its first
+deploy — so without `--pull` the site never gets a PHP security fix, however
+often you deploy. `docker compose exec web php -v` shows what is running.
 
 Because there is no database and no generated state, that is atomic enough in
 practice, and rollback is:

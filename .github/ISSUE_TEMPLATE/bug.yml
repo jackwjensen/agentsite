@@ -41,7 +41,7 @@ body:
     id: environment
     attributes:
       label: How you are running it
-      placeholder: Docker Desktop 4.x on Windows 11 / docker compose on Ubuntu 24.04 / PHP 8.3 + nginx, no Docker
+      placeholder: Docker Desktop 4.x on Windows 11 / docker compose on Ubuntu 24.04 / PHP 8.5 + nginx, no Docker
     validations:
       required: true
 
