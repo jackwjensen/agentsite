@@ -21,6 +21,18 @@ The version in `VERSION` is what a module's `core_min` is checked against.
   `git pull && docker compose build --pull && docker compose up -d` and check
   `docker compose exec web php -v` reports 8.5.12 or later. Change your own
   deploy script the same way if you copied `docs/examples/deploy.yml`.
+- **Rate limits could be bypassed with a forged header.** `client_ip()`
+  took the leftmost `X-Forwarded-For` entry and believed `CF-Connecting-IP`
+  from anyone, both of which a visitor writes themselves. One forged header
+  per request was a fresh rate-limit bucket: unlimited admin-login attempts,
+  contact-form and newsletter submissions. It now walks the chain from the
+  right over the proxies declared in the new `config/trusted-hops.php`, and
+  reads `CF-Connecting-IP` only when a Cloudflare address really is in the
+  chain. The defaults cover every setup in `docs/DEPLOY.md`. The
+  contact-form module also stopped blocklisting `0.0.0.0` ("unknown"),
+  which its guard had let through. **Existing sites:** pull, and re-install
+  contact-form if you use it. If your reverse proxy has a public address,
+  add it to `own_infrastructure` in `config/trusted-hops.php`.
 
 **Changed**
 

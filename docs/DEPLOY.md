@@ -78,10 +78,19 @@ Whatever proxy you use, it must send:
 - **`X-Forwarded-Proto`** — the site uses it to decide whether the request
   really arrived over TLS. Without it, session cookies lose their `Secure`
   flag and generated absolute URLs say `http://`.
-- **`X-Forwarded-For`** (or Cloudflare's `CF-Connecting-IP`) — the site uses
-  it to identify the visitor. Without it, every rate limit and every logged
-  IP is the proxy's own address, which means one visitor can exhaust
-  everybody's allowance.
+- **`X-Forwarded-For`** — the site uses it to identify the visitor. Without
+  it, every visitor looks the same, so one visitor can exhaust everybody's
+  rate-limit allowance. All three proxies above send it by default.
+
+The site does not simply believe that header, because a visitor can send
+one too. It walks the chain from the right, steps over the proxies listed in
+[config/trusted-hops.php](../config/trusted-hops.php), and takes the first
+address that is not one of them. Cloudflare's `CF-Connecting-IP` is only
+read when a Cloudflare address really is in the chain. The defaults cover a
+proxy on the same host, with or without Cloudflare in front. **If your proxy
+has a public address** (a managed load balancer, a proxy on another
+server), add it to `own_infrastructure` in that file. Otherwise every
+visitor will look like your proxy.
 
 If you also put a CDN in front, check that a long-lived `Cache-Control` on
 `/assets/` survives it. Asset URLs here are versioned by file modification

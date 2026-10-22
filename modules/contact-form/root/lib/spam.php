@@ -132,7 +132,10 @@ function spam_is_blocked(string $ip): bool
 /** Append an IP to the blocklist. Idempotent; the file is hand-editable. */
 function spam_block_ip(string $ip, string $reason): void
 {
-    if (!filter_var($ip, FILTER_VALIDATE_IP)) return;   // never block "unknown"
+    // Never block "unknown": it is every visitor client_ip() could not
+    // identify, not one address. Named explicitly because filter_var()
+    // accepts '0.0.0.0' as a valid IP, so validating alone never caught it.
+    if ($ip === REQUEST_UNKNOWN_IP || !filter_var($ip, FILTER_VALIDATE_IP)) return;
     if (spam_is_blocked($ip)) return;
     spam_ensure_dirs();
     $line = $ip . "\t" . date('c') . "\t" . preg_replace('/\s+/', ' ', $reason) . "\n";
